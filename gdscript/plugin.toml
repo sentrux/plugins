@@ -17,7 +17,7 @@ ref = "master"
 abi_version = 14
 
 [queries]
-capabilities = ["functions", "classes", "imports"]
+capabilities = ["functions", "classes"]
 
 [checksums]
 # Populated by CI after building
