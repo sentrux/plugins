@@ -38,6 +38,7 @@ jobs:
       fail-fast: false
       matrix:
         plugin: ${{ fromJSON(needs.detect-plugins.outputs.plugins) }}
+        os: [macos-latest, ubuntu-latest]
         include:
           - os: macos-latest
             platform: darwin-arm64
