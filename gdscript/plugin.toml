@@ -12,7 +12,7 @@ license = "MIT"
 description = "GDScript support for Godot game engine projects"
 
 [grammar]
-source = "https://github.com/PrestonKnoworking/tree-sitter-gdscript"
+source = "https://github.com/PrestonKnopp/tree-sitter-gdscript"
 ref = "master"
 abi_version = 14
 
