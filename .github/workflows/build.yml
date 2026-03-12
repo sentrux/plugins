@@ -1,0 +1,151 @@
+name: Build Plugin Grammars
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*/plugin.toml'
+      - '*/queries/**'
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: 'Plugin name to build (e.g., gdscript)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  detect-plugins:
+    runs-on: ubuntu-latest
+    outputs:
+      plugins: ${{ steps.detect.outputs.plugins }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: detect
+        run: |
+          if [ -n "${{ inputs.plugin }}" ]; then
+            echo "plugins=[\"${{ inputs.plugin }}\"]" >> "$GITHUB_OUTPUT"
+          else
+            # Find all directories with plugin.toml
+            plugins=$(find . -name plugin.toml -maxdepth 2 | sed 's|./||;s|/plugin.toml||' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "plugins=$plugins" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: detect-plugins
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: ${{ fromJSON(needs.detect-plugins.outputs.plugins) }}
+        include:
+          - os: macos-latest
+            platform: darwin-arm64
+            ext: dylib
+            cc_flags: "-arch arm64"
+          - os: ubuntu-latest
+            platform: linux-x86_64
+            ext: so
+            cc_flags: ""
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tree-sitter CLI
+        run: npm install -g tree-sitter-cli
+
+      - name: Read grammar source
+        id: grammar
+        run: |
+          source=$(grep 'source = ' ${{ matrix.plugin }}/plugin.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          ref=$(grep 'ref = ' ${{ matrix.plugin }}/plugin.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "source=$source" >> "$GITHUB_OUTPUT"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Clone grammar source
+        run: |
+          git clone --depth 1 --branch "${{ steps.grammar.outputs.ref }}" \
+            "${{ steps.grammar.outputs.source }}" grammar-src || \
+          git clone --depth 1 "${{ steps.grammar.outputs.source }}" grammar-src
+
+      - name: Build grammar
+        run: |
+          cd grammar-src
+          tree-sitter generate || true  # Some grammars are pre-generated
+          cc -shared -fPIC -O2 ${{ matrix.cc_flags }} \
+            -I src \
+            src/parser.c \
+            $([ -f src/scanner.c ] && echo src/scanner.c) \
+            -o ../grammar.${{ matrix.ext }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.plugin }}-${{ matrix.platform }}
+          path: grammar.${{ matrix.ext }}
+
+  package:
+    needs: [detect-plugins, build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        plugin: ${{ fromJSON(needs.detect-plugins.outputs.plugins) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all platform builds
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ matrix.plugin }}-*
+
+      - name: Read version
+        id: version
+        run: |
+          version=$(grep 'version = ' ${{ matrix.plugin }}/plugin.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Package per platform
+        run: |
+          for platform_dir in ${{ matrix.plugin }}-*/; do
+            platform=$(echo "$platform_dir" | sed "s/${{ matrix.plugin }}-//;s|/||")
+            mkdir -p "pkg-${platform}/${{ matrix.plugin }}/grammars"
+            mkdir -p "pkg-${platform}/${{ matrix.plugin }}/queries"
+
+            # Copy grammar binary with correct name
+            if [ -f "${platform_dir}/grammar.dylib" ]; then
+              cp "${platform_dir}/grammar.dylib" "pkg-${platform}/${{ matrix.plugin }}/grammars/${platform}.dylib"
+            elif [ -f "${platform_dir}/grammar.so" ]; then
+              cp "${platform_dir}/grammar.so" "pkg-${platform}/${{ matrix.plugin }}/grammars/${platform}.so"
+            fi
+
+            # Copy plugin.toml and queries
+            cp "${{ matrix.plugin }}/plugin.toml" "pkg-${platform}/${{ matrix.plugin }}/"
+            cp -r "${{ matrix.plugin }}/queries/" "pkg-${platform}/${{ matrix.plugin }}/queries/"
+
+            # Create tarball
+            cd "pkg-${platform}"
+            tar czf "../${{ matrix.plugin }}-${platform}.tar.gz" "${{ matrix.plugin }}/"
+            cd ..
+          done
+
+      - name: Compute checksums
+        run: |
+          for f in ${{ matrix.plugin }}-*.tar.gz; do
+            sha256sum "$f"
+          done
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ matrix.plugin }}-v${{ steps.version.outputs.version }}
+          name: "${{ matrix.plugin }} v${{ steps.version.outputs.version }}"
+          files: ${{ matrix.plugin }}-*.tar.gz
+          body: |
+            Language plugin: **${{ matrix.plugin }}** v${{ steps.version.outputs.version }}
+
+            Install: `sentrux plugin add ${{ matrix.plugin }}`
+
+            Or manually download and extract to `~/.sentrux/plugins/${{ matrix.plugin }}/`

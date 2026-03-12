@@ -1,0 +1,13 @@
+# Sentrux Plugin Registry
+# This file is the index of all available plugins.
+# `sentrux plugin add <name>` reads this to find download URLs.
+
+[registry]
+version = 1
+
+[[plugins]]
+name = "gdscript"
+version = "0.1.0"
+display_name = "GDScript (Godot)"
+extensions = ["gd"]
+download_base = "https://github.com/sentrux/plugins/releases/download"
