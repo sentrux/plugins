@@ -1,0 +1,20 @@
+[plugin]
+name = "python"
+display_name = "Python"
+version = "0.1.0"
+extensions = ["py"]
+min_sentrux_version = "0.3.0"
+
+[plugin.metadata]
+author = "sentrux"
+license = "MIT"
+
+[grammar]
+source = "https://github.com/tree-sitter/tree-sitter-python"
+ref = "master"
+abi_version = 14
+
+[queries]
+capabilities = ["functions", "classes", "imports"]
+
+[checksums]

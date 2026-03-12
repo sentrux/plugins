@@ -1,0 +1,20 @@
+[plugin]
+name = "go"
+display_name = "Go"
+version = "0.1.0"
+extensions = ["go"]
+min_sentrux_version = "0.3.0"
+
+[plugin.metadata]
+author = "sentrux"
+license = "MIT"
+
+[grammar]
+source = "https://github.com/tree-sitter/tree-sitter-go"
+ref = "master"
+abi_version = 14
+
+[queries]
+capabilities = ["functions", "imports"]
+
+[checksums]

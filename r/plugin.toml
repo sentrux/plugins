@@ -1,0 +1,20 @@
+[plugin]
+name = "r"
+display_name = "R"
+version = "0.1.0"
+extensions = ["r", "R"]
+min_sentrux_version = "0.3.0"
+
+[plugin.metadata]
+author = "sentrux"
+license = "MIT"
+
+[grammar]
+source = "https://github.com/r-lib/tree-sitter-r"
+ref = "main"
+abi_version = 14
+
+[queries]
+capabilities = ["functions"]
+
+[checksums]

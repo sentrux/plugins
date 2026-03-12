@@ -74,12 +74,34 @@ jobs:
       - name: Build grammar
         run: |
           cd grammar-src
+
+          # Some grammars have subdirectories (typescript/src, php_only/src)
+          SRC_DIR="src"
+          for sub in typescript php_only; do
+            if [ -d "$sub/src" ]; then
+              SRC_DIR="$sub/src"
+              break
+            fi
+          done
+
           tree-sitter generate || true  # Some grammars are pre-generated
-          cc -shared -fPIC -O2 ${{ matrix.cc_flags }} \
-            -I src \
-            src/parser.c \
-            $([ -f src/scanner.c ] && echo src/scanner.c) \
-            -o ../grammar.${{ matrix.ext }}
+
+          # Collect source files
+          SOURCES="$SRC_DIR/parser.c"
+          [ -f "$SRC_DIR/scanner.c" ] && SOURCES="$SOURCES $SRC_DIR/scanner.c"
+
+          # C++ scanner (some grammars use scanner.cc)
+          if [ -f "$SRC_DIR/scanner.cc" ]; then
+            c++ -shared -fPIC -O2 ${{ matrix.cc_flags }} \
+              -I "$SRC_DIR" \
+              $SOURCES "$SRC_DIR/scanner.cc" \
+              -o ../grammar.${{ matrix.ext }}
+          else
+            cc -shared -fPIC -O2 ${{ matrix.cc_flags }} \
+              -I "$SRC_DIR" \
+              $SOURCES \
+              -o ../grammar.${{ matrix.ext }}
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

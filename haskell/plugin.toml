@@ -1,0 +1,20 @@
+[plugin]
+name = "haskell"
+display_name = "Haskell"
+version = "0.1.0"
+extensions = ["hs"]
+min_sentrux_version = "0.3.0"
+
+[plugin.metadata]
+author = "sentrux"
+license = "MIT"
+
+[grammar]
+source = "https://github.com/tree-sitter/tree-sitter-haskell"
+ref = "master"
+abi_version = 14
+
+[queries]
+capabilities = ["functions", "classes", "imports"]
+
+[checksums]

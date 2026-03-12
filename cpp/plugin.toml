@@ -1,0 +1,20 @@
+[plugin]
+name = "cpp"
+display_name = "C++"
+version = "0.1.0"
+extensions = ["cpp", "cc", "cxx", "hpp", "hh", "hxx"]
+min_sentrux_version = "0.3.0"
+
+[plugin.metadata]
+author = "sentrux"
+license = "MIT"
+
+[grammar]
+source = "https://github.com/tree-sitter/tree-sitter-cpp"
+ref = "master"
+abi_version = 14
+
+[queries]
+capabilities = ["functions", "classes", "imports"]
+
+[checksums]
