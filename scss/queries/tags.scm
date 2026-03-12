@@ -1,16 +1,7 @@
-; SCSS structural queries
-
-; Mixins  @mixin name { ... }
-(mixin_statement
-  name: (identifier) @func.name) @func.def
-
-; Functions  @function name() { ... }
-(function_statement
-  name: (identifier) @func.name) @func.def
+; SCSS structural queries — minimal safe version
 
 ; Imports
 (import_statement) @import
 
-; Includes  @include name;
-(include_statement
-  (identifier) @call.name) @call
+; Include statements
+(include_statement) @call

@@ -13,6 +13,7 @@ license = "MIT"
 source = "https://github.com/tree-sitter/tree-sitter-c-sharp"
 ref = "master"
 abi_version = 14
+symbol_name = "c_sharp"
 
 [queries]
 capabilities = ["functions", "classes", "imports"]

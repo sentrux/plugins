@@ -15,6 +15,6 @@ ref = "master"
 abi_version = 14
 
 [queries]
-capabilities = ["functions", "imports"]
+capabilities = ["imports"]
 
 [checksums]
