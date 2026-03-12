@@ -124,7 +124,7 @@ jobs:
 
             # Copy plugin.toml and queries
             cp "${{ matrix.plugin }}/plugin.toml" "pkg-${platform}/${{ matrix.plugin }}/"
-            cp -r "${{ matrix.plugin }}/queries/" "pkg-${platform}/${{ matrix.plugin }}/queries/"
+            cp "${{ matrix.plugin }}/queries/"* "pkg-${platform}/${{ matrix.plugin }}/queries/"
 
             # Create tarball
             cd "pkg-${platform}"
