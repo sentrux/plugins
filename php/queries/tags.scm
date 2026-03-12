@@ -1,48 +1,42 @@
-; Official tree-sitter-php tags.scm (v0.23.11)
+; PHP structural queries for sentrux
 
-(namespace_definition
-  name: (namespace_name) @name) @definition.module
-
-(interface_declaration
-  name: (name) @name) @definition.interface
-
-(trait_declaration
-  name: (name) @name) @definition.interface
-
-(class_declaration
-  name: (name) @name) @definition.class
-
-(class_interface_clause [(name) (qualified_name)] @name) @reference.implementation
-
-(property_declaration
-  (property_element (variable_name (name) @name))) @definition.field
-
+; Functions
 (function_definition
-  name: (name) @name) @definition.function
+  name: (name) @func.name) @func.def
 
+; Methods
 (method_declaration
-  name: (name) @name) @definition.function
+  name: (name) @func.name) @func.def
 
-(object_creation_expression
-  [
-    (qualified_name (name) @name)
-    (variable_name (name)) @name
-  ]) @reference.class
+; Classes
+(class_declaration
+  name: (name) @class.name) @class.def
 
+; Interfaces
+(interface_declaration
+  name: (name) @class.name) @class.def
+
+; Traits
+(trait_declaration
+  name: (name) @class.name) @class.def
+
+; Namespace use (imports): use Foo\Bar\Baz;
+(namespace_use_declaration
+  (namespace_use_clause
+    (qualified_name) @import.path)) @import.node
+
+; Include/require: include "file.php";
+(include_expression
+  (string) @import.path) @import.node
+
+; Function calls
 (function_call_expression
-  function: [
-    (qualified_name (name) @name)
-    (variable_name (name)) @name
-  ]) @reference.call
+  function: (name) @call.name)
 
-(scoped_call_expression
-  name: (name) @name) @reference.call
-
+; Method calls
 (member_call_expression
-  name: (name) @name) @reference.call
+  name: (name) @call.name)
 
-; ---- Import appendix (custom) ----
-
-(namespace_use_declaration) @import
-
-(include_expression) @import
+; Static calls
+(scoped_call_expression
+  name: (name) @call.name)
