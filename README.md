@@ -1,18 +1,45 @@
 # sentrux plugins
 
-Language plugins for [sentrux](https://github.com/sentrux/sentrux) — tree-sitter grammars and queries.
+Language plugins for [sentrux](https://github.com/sentrux/sentrux) — tree-sitter grammars and structural queries.
 
-## Install a plugin
+All 23 plugins install automatically on first run. No manual setup needed.
+
+## Available languages
+
+| Language | Extensions |
+|----------|-----------|
+| Bash | `sh`, `bash` |
+| C | `c`, `h` |
+| C# | `cs` |
+| C++ | `cpp`, `cc`, `cxx`, `hpp`, `hh`, `hxx` |
+| CSS | `css` |
+| Elixir | `ex`, `exs` |
+| GDScript (Godot) | `gd` |
+| Go | `go` |
+| Haskell | `hs` |
+| HTML | `html`, `htm` |
+| Java | `java` |
+| JavaScript | `js`, `mjs`, `cjs`, `jsx` |
+| Lua | `lua` |
+| PHP | `php` |
+| Python | `py` |
+| R | `r`, `R` |
+| Ruby | `rb` |
+| Rust | `rs` |
+| Scala | `scala`, `sc` |
+| SCSS | `scss` |
+| Swift | `swift` |
+| TypeScript | `ts`, `mts`, `cts`, `tsx` |
+| Zig | `zig` |
+
+## Manual plugin management
 
 ```bash
-sentrux plugin add gdscript
+sentrux plugin list              # show installed plugins
+sentrux plugin add <name>        # install a single plugin
+sentrux plugin remove <name>     # remove a plugin
+sentrux plugin add-standard      # reinstall all 23 standard plugins
 ```
-
-## Available plugins
-
-| Language | Extensions | Status |
-|----------|-----------|--------|
-| GDScript (Godot) | `.gd` | Available |
 
 ## Create a new plugin
 
@@ -23,42 +50,35 @@ sentrux plugin init my-language
 # 2. Build the tree-sitter grammar
 cd ~/.sentrux/plugins/my-language/grammar-src
 tree-sitter generate
-cc -shared -fPIC -o ../grammars/$(sentrux plugin platform) src/parser.c
+cc -shared -fPIC -o ../grammars/darwin-arm64.dylib src/parser.c  # macOS
+cc -shared -fPIC -o ../grammars/linux-x86_64.so src/parser.c     # Linux
 
-# 3. Write queries/tags.scm (define function, class, import captures)
+# 3. Write queries/tags.scm
 
 # 4. Validate
 sentrux plugin validate ~/.sentrux/plugins/my-language
-
-# 5. PR to this repo
 ```
 
-## Plugin spec
-
-Each plugin is a directory containing:
+## Plugin structure
 
 ```
 <language>/
-├── plugin.toml          ← manifest (name, extensions, capabilities, checksums)
+├── plugin.toml          # manifest (name, extensions, capabilities, checksums)
 ├── queries/
-│   └── tags.scm         ← tree-sitter queries for structural extraction
-├── grammars/            ← built by CI for each platform
-│   ├── darwin-arm64.dylib
-│   ├── darwin-x86_64.dylib
-│   └── linux-x86_64.so
-└── tests/
-    ├── sample.<ext>     ← sample source file
-    └── expected.json    ← expected parse output (optional)
+│   └── tags.scm         # tree-sitter queries for structural extraction
+└── grammars/            # built by CI for each platform
+    ├── darwin-arm64.dylib
+    └── linux-x86_64.so
 ```
 
-### Required query captures
+### Query captures
 
-| Capability | Capture | Description |
+| Capability | Captures | Description |
 |-----------|---------|-------------|
-| functions | `@func.def`, `@func.name` | Function definitions |
-| classes | `@class.def`, `@class.name` | Class definitions |
-| imports | `@import.path` | Import statements |
-| calls (optional) | `@call.name` | Function calls |
+| functions | `@func.def`, `@func.name` | Function/method definitions |
+| classes | `@class.def`, `@class.name` | Class/struct/type definitions |
+| imports | `@import` or `@import.module` | Import/require/use statements |
+| calls | `@reference.call` | Function call sites |
 
 ## License
 
