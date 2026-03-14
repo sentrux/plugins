@@ -86,18 +86,50 @@ jobs:
       - name: Build grammar
         if: steps.check.outputs.has_grammar == 'true'
         run: |
+          WORK_DIR="$(pwd)"
           cd grammar-src
 
-          # Some grammars have subdirectories (typescript/src, php_only/src)
-          SRC_DIR="src"
-          for sub in typescript php_only; do
-            if [ -d "$sub/src" ]; then
-              SRC_DIR="$sub/src"
-              break
+          # Auto-detect grammar subdirectory:
+          # Some repos put grammar.js in a subdir (fsharp/grammar.js, grammars/ocaml/grammar.js)
+          GRAMMAR_DIR="."
+          if [ ! -f grammar.js ]; then
+            # Try plugin name as subdir (fsharp/, ocaml/)
+            PLUGIN="${{ matrix.plugin }}"
+            if [ -f "$PLUGIN/grammar.js" ]; then
+              GRAMMAR_DIR="$PLUGIN"
+            elif [ -f "grammars/$PLUGIN/grammar.js" ]; then
+              GRAMMAR_DIR="grammars/$PLUGIN"
+            else
+              # Search for grammar.js anywhere
+              FOUND=$(find . -name grammar.js -maxdepth 3 | head -1)
+              if [ -n "$FOUND" ]; then
+                GRAMMAR_DIR=$(dirname "$FOUND")
+              fi
             fi
-          done
+          fi
 
-          tree-sitter generate || true  # Some grammars are pre-generated
+          echo "Grammar dir: $GRAMMAR_DIR"
+          cd "$GRAMMAR_DIR"
+
+          # Generate parser from grammar.js (some grammars are pre-generated)
+          tree-sitter generate || true
+
+          # Find src directory
+          SRC_DIR="src"
+          if [ ! -f "$SRC_DIR/parser.c" ]; then
+            # Some grammars use subdirectories (typescript/src, php_only/src)
+            for sub in */src; do
+              if [ -f "$sub/parser.c" ]; then
+                SRC_DIR="$sub"
+                break
+              fi
+            done
+          fi
+
+          if [ ! -f "$SRC_DIR/parser.c" ]; then
+            echo "::error::parser.c not found in $SRC_DIR"
+            exit 1
+          fi
 
           # Collect source files
           SOURCES="$SRC_DIR/parser.c"
@@ -105,15 +137,15 @@ jobs:
 
           # C++ scanner (some grammars use scanner.cc)
           if [ -f "$SRC_DIR/scanner.cc" ]; then
-            c++ -shared -fPIC -O2 ${{ matrix.cc_flags }} \
+            c++ -shared -fPIC -O2 -fpermissive ${{ matrix.cc_flags }} \
               -I "$SRC_DIR" \
               $SOURCES "$SRC_DIR/scanner.cc" \
-              -o ../grammar.${{ matrix.ext }}
+              -o "$WORK_DIR/grammar.${{ matrix.ext }}"
           else
             cc -shared -fPIC -O2 ${{ matrix.cc_flags }} \
               -I "$SRC_DIR" \
               $SOURCES \
-              -o ../grammar.${{ matrix.ext }}
+              -o "$WORK_DIR/grammar.${{ matrix.ext }}"
           fi
 
       - name: Upload artifact
