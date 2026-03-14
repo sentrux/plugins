@@ -11,7 +11,7 @@ author = "sentrux"
 license = "MIT"
 
 [grammar]
-source = "https://github.com/tree-sitter-grammars/tree-sitter-nim"
+source = "https://github.com/aMOPel/tree-sitter-nim"
 ref = "main"
 abi_version = 14
 

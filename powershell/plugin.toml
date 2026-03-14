@@ -11,8 +11,8 @@ author = "sentrux"
 license = "MIT"
 
 [grammar]
-source = "https://github.com/tree-sitter-grammars/tree-sitter-powershell"
-ref = "master"
+source = "https://github.com/airbus-cert/tree-sitter-powershell"
+ref = "main"
 abi_version = 14
 
 [queries]

@@ -11,7 +11,7 @@ author = "sentrux"
 license = "MIT"
 
 [grammar]
-source = "https://github.com/tree-sitter-grammars/tree-sitter-fsharp"
+source = "https://github.com/ionide/tree-sitter-fsharp"
 ref = "main"
 abi_version = 14
 

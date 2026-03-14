@@ -11,8 +11,8 @@ author = "sentrux"
 license = "MIT"
 
 [grammar]
-source = "https://github.com/AKushWarrior/tree-sitter-dart"
-ref = "main"
+source = "https://github.com/UserNobody14/tree-sitter-dart"
+ref = "master"
 abi_version = 14
 
 [queries]

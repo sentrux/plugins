@@ -11,7 +11,7 @@ author = "sentrux"
 license = "MIT"
 
 [grammar]
-source = "https://github.com/tree-sitter-grammars/tree-sitter-crystal"
+source = "https://github.com/crystal-lang-tools/tree-sitter-crystal"
 ref = "main"
 abi_version = 14
 

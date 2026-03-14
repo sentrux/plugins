@@ -11,7 +11,7 @@ author = "sentrux"
 license = "MIT"
 
 [grammar]
-source = "https://github.com/tree-sitter-grammars/tree-sitter-protobuf"
+source = "https://github.com/90-008/tree-sitter-protobuf"
 ref = "main"
 abi_version = 14
 
