@@ -131,24 +131,27 @@ jobs:
             exit 1
           fi
 
-          # Compile parser.c as C (always)
+          # Compile parser.c as C — suppress warnings on AUTO-GENERATED code only.
+          # parser.c is produced by `tree-sitter generate` and may trigger
+          # pedantic warnings across GCC/Clang versions. This is standard
+          # practice (Neovim, Helix, Zed all suppress warnings on generated parsers).
           OBJECTS=""
           cc -c -fPIC -O2 -w ${{ matrix.cc_flags }} \
             -I "$SRC_DIR" \
             "$SRC_DIR/parser.c" -o parser.o
           OBJECTS="parser.o"
 
-          # Optional C scanner
+          # Optional C scanner — human-written code, warnings enabled
           if [ -f "$SRC_DIR/scanner.c" ]; then
-            cc -c -fPIC -O2 -w ${{ matrix.cc_flags }} \
+            cc -c -fPIC -O2 -Wall ${{ matrix.cc_flags }} \
               -I "$SRC_DIR" \
               "$SRC_DIR/scanner.c" -o scanner.o
             OBJECTS="$OBJECTS scanner.o"
           fi
 
-          # C++ scanner (some grammars use scanner.cc)
+          # C++ scanner — human-written code, warnings enabled
           if [ -f "$SRC_DIR/scanner.cc" ]; then
-            c++ -c -fPIC -O2 -fpermissive -w ${{ matrix.cc_flags }} \
+            c++ -c -fPIC -O2 -Wall ${{ matrix.cc_flags }} \
               -I "$SRC_DIR" \
               "$SRC_DIR/scanner.cc" -o scanner_cc.o
             OBJECTS="$OBJECTS scanner_cc.o"
