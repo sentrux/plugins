@@ -5,5 +5,10 @@ version = "0.1.0"
 extensions = ["toml"]
 color_rgb = [130, 75, 50]
 
+[grammar]
+source = "https://github.com/tree-sitter-grammars/tree-sitter-toml"
+ref = "master"
+abi_version = 14
+
 [semantics]
 is_executable = false

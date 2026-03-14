@@ -10,5 +10,10 @@ color_rgb = [220, 140, 60]
 author = "sentrux"
 license = "MIT"
 
+[grammar]
+source = "https://github.com/DerekStride/tree-sitter-sql"
+ref = "main"
+abi_version = 14
+
 [semantics]
 is_executable = false

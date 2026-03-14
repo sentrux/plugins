@@ -11,5 +11,10 @@ color_rgb = [60, 80, 90]
 author = "sentrux"
 license = "MIT"
 
+[grammar]
+source = "https://github.com/camdencheek/tree-sitter-dockerfile"
+ref = "main"
+abi_version = 14
+
 [semantics]
 is_executable = false

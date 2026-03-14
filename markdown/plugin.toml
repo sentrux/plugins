@@ -10,5 +10,10 @@ color_rgb = [50, 70, 135]
 author = "sentrux"
 license = "MIT"
 
+[grammar]
+source = "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
+ref = "split_parser"
+abi_version = 14
+
 [semantics]
 is_executable = false

@@ -10,5 +10,10 @@ color_rgb = [155, 50, 55]
 author = "sentrux"
 license = "MIT"
 
+[grammar]
+source = "https://github.com/tree-sitter-grammars/tree-sitter-yaml"
+ref = "master"
+abi_version = 14
+
 [semantics]
 is_executable = false
