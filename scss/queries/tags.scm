@@ -1,7 +1,7 @@
-; SCSS structural queries — minimal safe version
+; SCSS structural queries
 
-; Imports
-(import_statement) @import
+; ---- Import appendix ----
 
-; Include statements
-(include_statement) @call
+; @import "file.scss"
+(import_statement
+  [(string_value) (call_expression)] @import.module) @import

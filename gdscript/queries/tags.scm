@@ -11,5 +11,10 @@
 ;; All calls — captured as reference.call for call graph
 (call) @reference.call
 
-;; preload/load calls — full text captured as @import for import extraction
-(call) @import
+;; ---- Import appendix (custom) ----
+
+;; preload("res://path") / load("res://path")
+;; Capture string arguments inside calls as import.module
+(call
+  (arguments
+    (string) @import.module)) @import

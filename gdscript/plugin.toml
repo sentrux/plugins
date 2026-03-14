@@ -4,6 +4,7 @@ display_name = "GDScript (Godot)"
 version = "0.1.0"
 extensions = ["gd"]
 min_sentrux_version = "0.1.3"
+color_rgb = [80, 85, 90]
 
 [plugin.metadata]
 author = "sentrux community"
@@ -21,3 +22,10 @@ capabilities = ["functions", "classes"]
 
 [checksums]
 # Populated by CI after building
+
+[semantics]
+import_extractor = ""
+base_class_extractor = "generic"
+is_executable = true
+
+[semantics.project]

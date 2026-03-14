@@ -1,0 +1,9 @@
+[plugin]
+name = "toml"
+display_name = "TOML"
+version = "0.1.0"
+extensions = ["toml"]
+color_rgb = [130, 75, 50]
+
+[semantics]
+is_executable = false
