@@ -3,6 +3,11 @@
 
 (script_element) @definition.module
 
-(component
+(element
   (start_tag
     (tag_name) @name)) @reference.call
+
+; ---- Import appendix ----
+; Vue imports live inside <script> blocks parsed as raw_text.
+
+(script_element) @import

@@ -14,6 +14,7 @@ license = "MIT"
 source = "https://github.com/tree-sitter-grammars/tree-sitter-objc"
 ref = "master"
 abi_version = 14
+symbol_name = "objc"
 
 [queries]
 capabilities = ["functions", "classes", "imports"]
@@ -28,9 +29,6 @@ base_class_extractor = "generic"
 [semantics.project]
 source_dirs = ["src"]
 ignored_dirs = ["build", "DerivedData"]
-
-
-[semantics.project]
 implicit_module = true
 [semantics.complexity]
 branch_nodes = ["if_statement", "for_statement", "while_statement", "do_statement", "switch_statement", "catch_clause"]

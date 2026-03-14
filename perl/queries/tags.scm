@@ -3,10 +3,13 @@
 (subroutine_declaration_statement
   name: (bareword) @name) @definition.function
 
-(package_statement
-  (package_name) @name) @definition.class
+(method_declaration_statement
+  name: (bareword) @name) @definition.function
 
-; ---- Import appendix ----
+(package_statement
+  name: (package) @name) @definition.class
 
 (use_statement
-  (package_name) @import.module) @import
+  module: (package) @import.module) @import
+
+(require_expression) @import

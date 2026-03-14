@@ -10,7 +10,7 @@
 
 (module_definition
   (module_binding
-    name: (module_name) @name)) @definition.module
+    (module_name) @name)) @definition.module
 
 ; ---- Import appendix ----
 

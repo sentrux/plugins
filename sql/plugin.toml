@@ -15,5 +15,10 @@ source = "https://github.com/DerekStride/tree-sitter-sql"
 ref = "main"
 abi_version = 14
 
+[queries]
+capabilities = []
+
+[checksums]
+
 [semantics]
 is_executable = false

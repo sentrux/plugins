@@ -6,3 +6,8 @@
 (element
   (start_tag
     (tag_name) @name)) @reference.call
+
+; ---- Import appendix ----
+; Svelte imports live inside <script> blocks parsed as raw_text.
+
+(script_element) @import

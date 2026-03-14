@@ -9,13 +9,5 @@
 (object_declaration
   (type_identifier) @name) @definition.class
 
-(interface_declaration
-  (type_identifier) @name) @definition.interface
-
-(call_expression
-  (simple_identifier) @name) @reference.call
-
-; ---- Import appendix ----
-
 (import_header
   (identifier) @import.module) @import
