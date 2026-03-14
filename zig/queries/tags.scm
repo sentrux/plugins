@@ -1,12 +1,12 @@
-; Zig structural queries (hand-written, no official tags.scm)
+; Zig tags.scm — verified against actual AST
 
-; Function declarations
+; functions: function_declaration → identifier field:name
 (function_declaration
-  name: (identifier) @func.name) @func.def
+  name: (identifier) @name) @definition.function
 
-; Test declarations
-(test_declaration
-  (identifier) @func.name) @func.def
-
-(test_declaration
-  (string) @func.name) @func.def
+; imports: variable_declaration with builtin @import
+(variable_declaration
+  (builtin_function
+    (builtin_identifier) @_fn
+    (arguments (string) @import.module)
+    (#eq? @_fn "@import"))) @import

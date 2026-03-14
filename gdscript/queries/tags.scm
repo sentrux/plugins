@@ -1,20 +1,13 @@
-;; GDScript structural queries for sentrux
+; GDScript tags.scm — verified against actual AST
 
-;; Function definitions
+; functions: function_definition → name field:name
 (function_definition
-  name: (name) @func.name) @func.def
+  name: (name) @name) @definition.function
 
-;; Class definitions
+; classes: class_name_statement → name field:name
+(class_name_statement
+  name: (name) @name) @definition.class
+
+; class definitions
 (class_definition
-  name: (name) @class.name) @class.def
-
-;; All calls — captured as reference.call for call graph
-(call) @reference.call
-
-;; ---- Import appendix (custom) ----
-
-;; preload("res://path") / load("res://path")
-;; Capture string arguments inside calls as import.module
-(call
-  (arguments
-    (string) @import.module)) @import
+  name: (name) @name) @definition.class

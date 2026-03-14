@@ -10,7 +10,10 @@
   (symbol
     (ident) @name)) @definition.class
 
-; imports: importStmt text contains the module path
-(importStmt) @import
-(fromStmt) @import
-(includeStmt) @import
+; imports: importStmt → expr (read text as module path)
+(importStmt
+  (expr) @import.module) @import
+(fromStmt
+  (expr) @import.module) @import
+(includeStmt
+  (expr) @import.module) @import

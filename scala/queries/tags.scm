@@ -1,29 +1,18 @@
-; Scala structural queries
+; Scala tags.scm — verified against actual AST
 
-; Function definitions
+; functions
 (function_definition
-  name: (identifier) @func.name) @func.def
+  name: (identifier) @name) @definition.function
 
-; Class definitions
+; classes
 (class_definition
-  name: (identifier) @class.name) @class.def
+  name: (identifier) @name) @definition.class
 
-; Object definitions (singleton)
 (object_definition
-  name: (identifier) @class.name) @class.def
+  name: (identifier) @name) @definition.class
 
-; Trait definitions
 (trait_definition
-  name: (identifier) @class.name) @class.def
+  name: (identifier) @name) @definition.class
 
-; Imports
+; imports: import_declaration captures whole path via text
 (import_declaration) @import
-
-; Calls — direct
-(call_expression
-  function: (identifier) @call.name) @call
-
-; Calls — field access  obj.method()
-(call_expression
-  function: (field_expression
-    field: (identifier) @call.name)) @call
