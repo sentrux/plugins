@@ -1,7 +1,17 @@
-(function_signature) @definition.function
-(method_signature) @definition.function
-(class_definition) @definition.class
-(enum_declaration) @definition.class
-(mixin_declaration) @definition.class
+; Dart tags.scm — verified against actual AST
+
+; functions
+(function_signature
+  name: (identifier) @name) @definition.function
+
+; classes
+(class_definition
+  name: (identifier) @name) @definition.class
+
+; enum
+(enum_declaration
+  name: (identifier) @name) @definition.class
+
+; imports — dart grammar may parse these as library_import or ERROR
 (library_import) @import
 (library_export) @import

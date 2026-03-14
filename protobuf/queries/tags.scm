@@ -1,16 +1,20 @@
-; Protocol Buffers tags.scm
+; Protobuf tags.scm — verified against actual AST
 
+; messages
 (message
-  (messageName) @name) @definition.class
+  (messageName
+    (ident) @name)) @definition.class
 
-(enum
-  (enumName) @name) @definition.class
-
+; services
 (service
-  (serviceName) @name) @definition.class
+  (serviceName
+    (ident) @name)) @definition.class
 
+; RPCs
 (rpc
-  (rpcName) @name) @definition.function
+  (rpcName
+    (ident) @name)) @definition.function
 
+; imports: import → strLit
 (import
   (strLit) @import.module) @import

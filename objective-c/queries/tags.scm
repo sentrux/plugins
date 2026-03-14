@@ -1,9 +1,21 @@
-; Objective-C tags.scm
+; Objective-C tags.scm — verified against actual AST
 
-(function_definition) @definition.function
+; functions: function_definition → function_declarator → identifier
+(function_definition
+  declarator: (function_declarator
+    declarator: (identifier) @name)) @definition.function
+
+; methods (captured without name extraction — ObjC method names are complex)
 (method_declaration) @definition.function
-(class_interface) @definition.class
-(protocol_declaration) @definition.interface
 
-; #import and #include
-(preproc_include) @import
+; classes: class_interface → identifier (direct child, no field name)
+(class_interface
+  (identifier) @name) @definition.class
+
+; protocols
+(protocol_declaration
+  (identifier) @name) @definition.interface
+
+; imports: preproc_include with field:path
+(preproc_include
+  path: (_) @import.module) @import
