@@ -1,23 +1,19 @@
-; GDScript tags.scm — verified against actual AST
+; GDScript tags.scm
 
-; functions
 (function_definition
   name: (name) @name) @definition.function
 
-; classes
 (class_name_statement
   name: (name) @name) @definition.class
 
 (class_definition
   name: (name) @name) @definition.class
 
-; calls
 (call
   (identifier) @name) @reference.call
 
-; imports: preload("res://path") and load("res://path")
+; ALL preload/load calls as imports (no predicate filter)
 (call
   (identifier) @_fn
   (arguments
-    (string) @import.module)
-  (#any-of? @_fn "preload" "load")) @import
+    (string) @import.module)) @import
