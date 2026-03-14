@@ -131,21 +131,31 @@ jobs:
             exit 1
           fi
 
-          # Collect source files
-          SOURCES="$SRC_DIR/parser.c"
-          [ -f "$SRC_DIR/scanner.c" ] && SOURCES="$SOURCES $SRC_DIR/scanner.c"
+          # Compile parser.c as C (always)
+          OBJECTS=""
+          cc -c -fPIC -O2 -w ${{ matrix.cc_flags }} \
+            -I "$SRC_DIR" \
+            "$SRC_DIR/parser.c" -o parser.o
+          OBJECTS="parser.o"
+
+          # Optional C scanner
+          if [ -f "$SRC_DIR/scanner.c" ]; then
+            cc -c -fPIC -O2 -w ${{ matrix.cc_flags }} \
+              -I "$SRC_DIR" \
+              "$SRC_DIR/scanner.c" -o scanner.o
+            OBJECTS="$OBJECTS scanner.o"
+          fi
 
           # C++ scanner (some grammars use scanner.cc)
           if [ -f "$SRC_DIR/scanner.cc" ]; then
-            c++ -shared -fPIC -O2 -fpermissive ${{ matrix.cc_flags }} \
+            c++ -c -fPIC -O2 -fpermissive -w ${{ matrix.cc_flags }} \
               -I "$SRC_DIR" \
-              $SOURCES "$SRC_DIR/scanner.cc" \
-              -o "$WORK_DIR/grammar.${{ matrix.ext }}"
+              "$SRC_DIR/scanner.cc" -o scanner_cc.o
+            OBJECTS="$OBJECTS scanner_cc.o"
+            # Link with C++ linker when C++ objects present
+            c++ -shared ${{ matrix.cc_flags }} $OBJECTS -o "$WORK_DIR/grammar.${{ matrix.ext }}"
           else
-            cc -shared -fPIC -O2 ${{ matrix.cc_flags }} \
-              -I "$SRC_DIR" \
-              $SOURCES \
-              -o "$WORK_DIR/grammar.${{ matrix.ext }}"
+            cc -shared ${{ matrix.cc_flags }} $OBJECTS -o "$WORK_DIR/grammar.${{ matrix.ext }}"
           fi
 
       - name: Upload artifact
@@ -157,6 +167,7 @@ jobs:
 
   package:
     needs: [detect-plugins, build]
+    if: always() && needs.detect-plugins.result == 'success'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -177,19 +188,21 @@ jobs:
 
       - name: Download all platform builds
         if: steps.check.outputs.has_grammar == 'true'
+        continue-on-error: true
+        id: download
         uses: actions/download-artifact@v4
         with:
           pattern: ${{ matrix.plugin }}-*
 
       - name: Read version
-        if: steps.check.outputs.has_grammar == 'true'
+        if: steps.check.outputs.has_grammar == 'true' && steps.download.outcome == 'success'
         id: version
         run: |
           version=$(grep 'version = ' ${{ matrix.plugin }}/plugin.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Package per platform
-        if: steps.check.outputs.has_grammar == 'true'
+        if: steps.check.outputs.has_grammar == 'true' && steps.download.outcome == 'success'
         run: |
           for platform_dir in ${{ matrix.plugin }}-*/; do
             platform=$(echo "$platform_dir" | sed "s/${{ matrix.plugin }}-//;s|/||")
@@ -214,14 +227,14 @@ jobs:
           done
 
       - name: Compute checksums
-        if: steps.check.outputs.has_grammar == 'true'
+        if: steps.check.outputs.has_grammar == 'true' && steps.download.outcome == 'success'
         run: |
           for f in ${{ matrix.plugin }}-*.tar.gz; do
             sha256sum "$f"
           done
 
       - name: Create release
-        if: steps.check.outputs.has_grammar == 'true'
+        if: steps.check.outputs.has_grammar == 'true' && steps.download.outcome == 'success'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ matrix.plugin }}-v${{ steps.version.outputs.version }}
