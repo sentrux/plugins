@@ -57,7 +57,18 @@ jobs:
       - name: Install tree-sitter CLI
         run: npm install -g tree-sitter-cli
 
+      - name: Check if grammar exists
+        id: check
+        run: |
+          if grep -q '\[grammar\]' "${{ matrix.plugin }}/plugin.toml"; then
+            echo "has_grammar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_grammar=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping ${{ matrix.plugin }} — no [grammar] section (display-only plugin)"
+          fi
+
       - name: Read grammar source
+        if: steps.check.outputs.has_grammar == 'true'
         id: grammar
         run: |
           source=$(grep 'source = ' ${{ matrix.plugin }}/plugin.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
@@ -66,12 +77,14 @@ jobs:
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
       - name: Clone grammar source
+        if: steps.check.outputs.has_grammar == 'true'
         run: |
           git clone --depth 1 --branch "${{ steps.grammar.outputs.ref }}" \
             "${{ steps.grammar.outputs.source }}" grammar-src || \
           git clone --depth 1 "${{ steps.grammar.outputs.source }}" grammar-src
 
       - name: Build grammar
+        if: steps.check.outputs.has_grammar == 'true'
         run: |
           cd grammar-src
 
@@ -104,6 +117,7 @@ jobs:
           fi
 
       - name: Upload artifact
+        if: steps.check.outputs.has_grammar == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.plugin }}-${{ matrix.platform }}
@@ -119,18 +133,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check if grammar exists
+        id: check
+        run: |
+          if grep -q '\[grammar\]' "${{ matrix.plugin }}/plugin.toml"; then
+            echo "has_grammar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_grammar=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping ${{ matrix.plugin }} — display-only plugin"
+          fi
+
       - name: Download all platform builds
+        if: steps.check.outputs.has_grammar == 'true'
         uses: actions/download-artifact@v4
         with:
           pattern: ${{ matrix.plugin }}-*
 
       - name: Read version
+        if: steps.check.outputs.has_grammar == 'true'
         id: version
         run: |
           version=$(grep 'version = ' ${{ matrix.plugin }}/plugin.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Package per platform
+        if: steps.check.outputs.has_grammar == 'true'
         run: |
           for platform_dir in ${{ matrix.plugin }}-*/; do
             platform=$(echo "$platform_dir" | sed "s/${{ matrix.plugin }}-//;s|/||")
@@ -155,12 +182,14 @@ jobs:
           done
 
       - name: Compute checksums
+        if: steps.check.outputs.has_grammar == 'true'
         run: |
           for f in ${{ matrix.plugin }}-*.tar.gz; do
             sha256sum "$f"
           done
 
       - name: Create release
+        if: steps.check.outputs.has_grammar == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ matrix.plugin }}-v${{ steps.version.outputs.version }}
